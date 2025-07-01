@@ -24,4 +24,4 @@ jobs:
 
       - name: Build and run on EC2
         run: |
-          ssh ${{ secrets.USER }}@${{ secrets.HOST }} 'cd /home/${{ secrets.USER }}/Orchestrator && docker-compose-down && docker-compose up --build -d'
+          ssh ${{ secrets.USER }}@${{ secrets.HOST }} 'cd /home/${{ secrets.USER }}/Orchestrator && docker-compose down && docker-compose up --build -d'
