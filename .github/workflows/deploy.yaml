@@ -1,0 +1,27 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy code with rsync 
+        run: |
+          rsync -avz --delete --exclude='.git' --exclude='.git' --exclude='*.log' -e "ssh -i ~/.ssh/id_rsa" . ${{ secrets.USER }}@${{ secrets.HOST }}:/home/${{ secrets.USER }}/Orchestrator
+
+      - name: Build and run on EC2
+        run: |
+          ssh ${{ secrets.USER }}@${{ secrets.HOST }} 'cd /home/${{ secrets.USER }}/Orchestrator && docker-compose-down && docker-compose up --build -d'
